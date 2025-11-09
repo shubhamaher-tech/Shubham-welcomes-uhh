@@ -21,4 +21,5 @@ A personal portfolio website showcasing Shubham's skills, projects, experience, 
 - **Icons**: Font Awesome
 
 
- Visit `[http://localhost:3000](https://personalweb-1-iaqb.onrender.com/)` in your browser
+
+https://personalweb-1-iaqb.onrender.com/
