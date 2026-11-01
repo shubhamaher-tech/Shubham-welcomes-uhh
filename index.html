@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="assets/three.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════
    TOKENS
@@ -51,9 +52,10 @@ body{font-family:'Outfit',sans-serif;background:var(--navy);color:var(--white);o
 ══════════════════════════════════════════════ */
 #intro{position:fixed;inset:0;z-index:9999;background:#000;
   display:flex;align-items:center;justify-content:center;flex-direction:column;
-  transition:opacity 1.2s var(--smooth),visibility 1.2s;}
+  transition:opacity .8s var(--smooth),visibility .8s;}
 #intro.out{opacity:0;visibility:hidden;}
-#intro-canvas{position:absolute;inset:0;}
+#intro-canvas{position:absolute;inset:0;z-index:0;}
+#earth-canvas{position:absolute;inset:0;pointer-events:none;z-index:2;}
 
 /* Skip button */
 #skip-btn{position:absolute;bottom:36px;right:36px;z-index:10;
@@ -68,15 +70,20 @@ body{font-family:'Outfit',sans-serif;background:var(--navy);color:var(--white);o
   background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.65) 100%);
   pointer-events:none;}
 
-.intro-wrap{position:relative;z-index:5;text-align:center;padding:0 24px;}
+.intro-wrap{position:relative;z-index:5;text-align:center;padding:0 24px;
+  pointer-events:none;display:flex;flex-direction:column;align-items:center;
+  justify-content:space-between;height:84vh;max-height:720px;
+  transition:opacity .5s var(--smooth),transform .5s var(--smooth);}
+.intro-top{display:flex;flex-direction:column;align-items:center;}
+.intro-bottom{display:flex;flex-direction:column;align-items:center;}
 .intro-planet-label{font-family:'Syne',sans-serif;font-size:clamp(10px,1.2vw,13px);
   letter-spacing:.35em;text-transform:uppercase;color:var(--cyan);
-  margin-bottom:22px;opacity:0;animation:iup .7s .6s var(--smooth) forwards;}
-.intro-heading{font-family:'Syne',sans-serif;font-size:clamp(28px,5.5vw,78px);
-  font-weight:800;line-height:1.0;letter-spacing:-.03em;overflow:hidden;
-  margin-bottom:18px;}
+  margin-bottom:16px;opacity:0;animation:iup .5s .15s var(--smooth) forwards;}
+.intro-heading{font-family:'Syne',sans-serif;font-size:clamp(28px,5.2vw,72px);
+  font-weight:800;line-height:1.05;letter-spacing:-.03em;overflow:hidden;
+  margin-bottom:12px;}
 .intro-heading .char{display:inline-block;opacity:0;transform:translateY(80px) rotateX(-40deg);
-  transition:opacity .55s var(--spring),transform .55s var(--spring);}
+  transition:opacity .45s var(--spring),transform .45s var(--spring);}
 .intro-heading .char.space{width:.28em;}
 .intro-heading .char.visible{opacity:1;transform:translateY(0) rotateX(0);}
 .intro-heading span.line1{
@@ -86,13 +93,13 @@ body{font-family:'Outfit',sans-serif;background:var(--navy);color:var(--white);o
   background:linear-gradient(135deg,var(--purple-soft),var(--pink));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .intro-sub{font-size:clamp(13px,1.8vw,18px);color:var(--muted);font-weight:300;
-  opacity:0;animation:iup .8s 1.8s var(--smooth) forwards;letter-spacing:.03em;}
-.intro-bar{margin-top:52px;display:flex;flex-direction:column;align-items:center;gap:10px;
-  opacity:0;animation:iup .6s 2.1s var(--smooth) forwards;}
+  opacity:0;animation:iup .6s .6s var(--smooth) forwards;letter-spacing:.03em;}
+.intro-bar{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  opacity:0;animation:iup .5s .8s var(--smooth) forwards;}
 .intro-bar-track{width:200px;height:2px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
 .intro-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--purple),var(--cyan));
   border-radius:4px;box-shadow:0 0 8px var(--cyan);
-  animation:bar-fill 3.5s 2.2s var(--smooth) forwards;}
+  animation:bar-fill 2.2s .8s var(--smooth) forwards;}
 @keyframes bar-fill{to{width:100%;}}
 .intro-bar-label{font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;}
 
@@ -204,12 +211,16 @@ nav.scrolled{background:rgba(3,6,15,.88);backdrop-filter:blur(28px);
 #home{display:flex;align-items:center;padding-top:90px;}
 .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
   position:relative;z-index:2;}
-.hero-eye{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);
-  margin-bottom:22px;font-weight:500;display:flex;align-items:center;gap:10px;}
+.hero-eye{font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);
+  margin-bottom:22px;font-weight:500;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .eye-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);
   animation:eye-pulse 2s ease-in-out infinite;
   box-shadow:0 0 12px var(--cyan),0 0 24px rgba(0,212,255,.3);}
 @keyframes eye-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.6);opacity:.6;}}
+.coord-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;
+  border-radius:100px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);
+  color:var(--cyan);font-size:11px;font-weight:600;letter-spacing:.08em;}
+.coord-pill i{font-size:10px;}
 .hero-name{font-family:'Syne',sans-serif;
   font-size:clamp(44px,5.8vw,84px);font-weight:800;line-height:.95;
   letter-spacing:-.04em;margin-bottom:18px;}
@@ -227,20 +238,31 @@ nav.scrolled{background:rgba(3,6,15,.88);backdrop-filter:blur(28px);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .stat-lbl{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.06em;}
 .hero-visual{position:relative;display:flex;align-items:center;justify-content:center;}
-.hero-orb{position:absolute;width:380px;height:380px;border-radius:50%;
+.hero-orb{position:absolute;width:400px;height:400px;border-radius:50%;
   background:conic-gradient(from 0deg,var(--purple),var(--cyan),var(--pink),var(--purple));
-  filter:blur(40px);opacity:.3;animation:orb-spin 10s linear infinite;}
+  filter:blur(44px);opacity:.32;animation:orb-spin 10s linear infinite;}
 @keyframes orb-spin{to{transform:rotate(360deg);}}
-.hero-ring1{position:absolute;width:360px;height:360px;border-radius:50%;
-  border:1px solid rgba(0,212,255,.12);animation:ring-rot 18s linear infinite;}
-.hero-ring2{position:absolute;width:300px;height:300px;border-radius:50%;
-  border:1px dashed rgba(123,47,255,.18);animation:ring-rot 12s linear infinite reverse;}
+.hero-ring1{position:absolute;width:370px;height:370px;border-radius:50%;
+  border:1px solid rgba(0,212,255,.18);animation:ring-rot 18s linear infinite;}
+.hero-ring1::before{content:'';position:absolute;top:-4px;left:50%;width:9px;height:9px;
+  border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan),0 0 24px rgba(0,212,255,.7);}
+.hero-ring2{position:absolute;width:310px;height:310px;border-radius:50%;
+  border:1px dashed rgba(123,47,255,.24);animation:ring-rot 12s linear infinite reverse;}
+.hero-ring2::before{content:'';position:absolute;bottom:-4px;left:30%;width:8px;height:8px;
+  border-radius:50%;background:var(--purple-soft);box-shadow:0 0 12px var(--purple),0 0 20px rgba(123,47,255,.7);}
 @keyframes ring-rot{to{transform:rotate(360deg);}}
+.hero-geo-tag{position:absolute;top:-16px;left:-16px;z-index:4;
+  padding:7px 15px;border-radius:100px;border:1px solid rgba(0,212,255,.35);
+  backdrop-filter:blur(20px);background:rgba(7,13,30,.88);font-size:11px;
+  font-weight:600;color:var(--cyan);display:flex;align-items:center;gap:7px;
+  box-shadow:0 8px 24px rgba(0,0,0,.45),0 0 18px rgba(0,212,255,.15);
+  animation:geo-float 5s ease-in-out infinite;}
+@keyframes geo-float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
 .hero-img{position:relative;z-index:2;width:290px;height:290px;border-radius:26px;
-  object-fit:cover;border:2px solid rgba(255,255,255,.1);
+  object-fit:cover;border:2px solid rgba(255,255,255,.12);
   animation:img-float 7s ease-in-out infinite;
-  box-shadow:0 0 80px rgba(123,47,255,.28),0 40px 80px rgba(0,0,0,.6),
-    0 0 0 1px rgba(255,255,255,.06);}
+  box-shadow:0 0 80px rgba(123,47,255,.32),0 40px 80px rgba(0,0,0,.65),
+    0 0 0 1px rgba(0,212,255,.15);}
 @keyframes img-float{0%,100%{transform:translateY(0) rotate(-1.5deg);}
   50%{transform:translateY(-18px) rotate(1.5deg);}}
 .hero-badge{position:absolute;bottom:-18px;right:-18px;z-index:4;
@@ -468,17 +490,22 @@ footer{background:var(--navy);border-top:1px solid var(--gb);padding:38px 0;}
 ════════════════════════════ -->
 <div id="intro">
   <canvas id="intro-canvas"></canvas>
+  <canvas id="earth-canvas"></canvas>
   <button id="skip-btn">Skip ↗</button>
   <div class="intro-wrap">
-    <div class="intro-planet-label">✦ &nbsp; Developer Portfolio &nbsp; ✦</div>
-    <div class="intro-heading">
-      <div><span class="line1" id="line1-chars"></span></div>
-      <div><span class="line2" id="line2-chars"></span></div>
+    <div class="intro-top">
+      <div class="intro-planet-label">✦ &nbsp; Developer Portfolio &nbsp; ✦</div>
+      <div class="intro-heading">
+        <div><span class="line1" id="line1-chars"></span></div>
+        <div><span class="line2" id="line2-chars"></span></div>
+      </div>
     </div>
-    <div class="intro-sub">AI &amp; Data Science Developer &nbsp;·&nbsp; Problem Solver &nbsp;·&nbsp; Tech Innovator</div>
-    <div class="intro-bar">
-      <div class="intro-bar-track"><div class="intro-bar-fill"></div></div>
-      <div class="intro-bar-label">Initializing portfolio…</div>
+    <div class="intro-bottom">
+      <div class="intro-sub">AI &amp; Data Science Developer &nbsp;·&nbsp; Problem Solver &nbsp;·&nbsp; Tech Innovator</div>
+      <div class="intro-bar">
+        <div class="intro-bar-track"><div class="intro-bar-fill"></div></div>
+        <div class="intro-bar-label">Initializing portfolio…</div>
+      </div>
     </div>
   </div>
 </div>
@@ -508,7 +535,11 @@ footer{background:var(--navy);border-top:1px solid var(--gb);padding:38px 0;}
   <div class="container">
     <div class="hero-grid">
       <div class="hero-left">
-        <div class="hero-eye"><div class="eye-dot"></div>Available for opportunities</div>
+        <div class="hero-eye">
+          <div class="eye-dot"></div>
+          <span class="coord-pill"><i class="fas fa-crosshairs"></i> 22° N, 79° E · INDIA</span>
+          <span>Available for opportunities</span>
+        </div>
         <h1 class="hero-name grad">Hi, I'm<br>Shubham</h1>
         <p class="hero-role-line">
           <strong id="typed-role">AI &amp; Data Science Developer</strong><span id="cursor-blink"></span><br>
@@ -542,6 +573,7 @@ footer{background:var(--navy);border-top:1px solid var(--gb);padding:38px 0;}
         <div class="hero-orb"></div>
         <div class="hero-ring1"></div>
         <div class="hero-ring2"></div>
+        <div class="hero-geo-tag"><i class="fas fa-satellite-dish"></i> Earth Station · IN</div>
         <img class="hero-img"
      src="ves.jpg"
      alt="Shubham">
@@ -861,86 +893,180 @@ document.addEventListener('mousemove',e=>{trailPositions=[{x:e.clientX,y:e.clien
 (function animTrails(){trails.forEach((t,i)=>{const p=trailPositions[i]||{x:0,y:0};t.el.style.left=p.x+'px';t.el.style.top=p.y+'px';t.el.style.opacity=t.op;t.el.style.transform=`translate(-50%,-50%) scale(${1-i*.12})`;});requestAnimationFrame(animTrails);})();
 document.querySelectorAll('a,button,.sk,.chip,.tl-item,.proj-card').forEach(el=>{el.addEventListener('mouseenter',()=>cRing.classList.add('hover'));el.addEventListener('mouseleave',()=>cRing.classList.remove('hover'));});
 
-/* ─── CINEMATIC INTRO ────────────────────── */
+/* ─── CINEMATIC INTRO: 3D EARTH & DEEP SPACE ────────────────────── */
 (function(){
-  const c=document.getElementById('intro-canvas'),ctx=c.getContext('2d');
-  let W,H,t=0;
-  const resize=()=>{W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
-  resize();window.addEventListener('resize',resize);
+  // Check prefers-reduced-motion
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Stars with layers */
-  const layers=[
+  const introEl = document.getElementById('intro');
+  const wormholeEl = document.getElementById('wormhole');
+  const skipBtn = document.getElementById('skip-btn');
+  const introWrap = document.querySelector('.intro-wrap');
+  const introCanvas = document.getElementById('intro-canvas');
+  const earthCanvas = document.getElementById('earth-canvas');
+
+  let isIntroDone = false;
+  let animFrame2D = null;
+  let animFrame3D = null;
+  let introTimeouts = [];
+
+  function safeTimeout(fn, ms) {
+    const id = setTimeout(fn, ms);
+    introTimeouts.push(id);
+    return id;
+  }
+
+  /* ── DISMISS INTRO ── */
+  function dismissIntro(immediate = false) {
+    if (isIntroDone) return;
+    isIntroDone = true;
+
+    // Clear all pending intro timeouts
+    introTimeouts.forEach(id => clearTimeout(id));
+    introTimeouts = [];
+
+    // Cancel animation frames
+    if (animFrame2D) cancelAnimationFrame(animFrame2D);
+    if (animFrame3D) cancelAnimationFrame(animFrame3D);
+
+    document.body.style.overflow = 'auto';
+
+    if (immediate) {
+      if (introEl) { introEl.style.display = 'none'; introEl.classList.add('out'); }
+      if (wormholeEl) { wormholeEl.style.display = 'none'; wormholeEl.classList.remove('active'); }
+      disposeThreeScene();
+      if (window.startHeroTypewriter) window.startHeroTypewriter();
+    } else {
+      if (wormholeEl) wormholeEl.classList.add('active');
+      safeTimeout(() => {
+        if (introEl) introEl.classList.add('out');
+      }, 250);
+      safeTimeout(() => {
+        if (introEl) introEl.style.display = 'none';
+        if (wormholeEl) wormholeEl.style.display = 'none';
+        disposeThreeScene();
+        if (window.startHeroTypewriter) window.startHeroTypewriter();
+      }, 900);
+    }
+  }
+
+  if (skipBtn) {
+    skipBtn.addEventListener('click', () => dismissIntro(true));
+  }
+
+  if (prefersReduced) {
+    dismissIntro(true);
+    return;
+  }
+
+  document.body.style.overflow = 'hidden';
+
+  /* ── SPLIT TEXT CHARACTERS ── */
+  function splitChars(id, text) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = text.split('').map(c =>
+      c === ' ' ? '<span class="char space"> </span>' : '<span class="char">' + c + '</span>'
+    ).join('');
+  }
+  splitChars('line1-chars', 'Welcome to');
+  splitChars('line2-chars', "Shubham's Portfolio");
+
+  let charDelay = 200;
+  ['line1-chars','line2-chars'].forEach((id, li) => {
+    const chars = document.querySelectorAll('#' + id + ' .char');
+    chars.forEach((ch, i) => {
+      safeTimeout(() => ch.classList.add('visible'), charDelay + li * 220 + i * 40);
+    });
+  });
+
+  /* ── 2D CANVAS: STARS, NEBULAE, ORBIT PATHS & PLANETS ── */
+  const ctx2d = introCanvas.getContext('2d');
+  let W = window.innerWidth, H = window.innerHeight;
+  let zoomFactor = 0; // 0 to 1 during zoom into India
+
+  const resize2D = () => {
+    W = introCanvas.width = window.innerWidth;
+    H = introCanvas.height = window.innerHeight;
+  };
+  resize2D();
+
+  const layers = [
     Array.from({length:200},()=>({x:Math.random()*5000,y:Math.random()*5000,r:.5+Math.random()*.6,tw:1+Math.random()*4,op:.3+Math.random()*.5,speed:.15})),
     Array.from({length:120},()=>({x:Math.random()*5000,y:Math.random()*5000,r:.8+Math.random()*1.2,tw:2+Math.random()*4,op:.4+Math.random()*.5,speed:.25})),
     Array.from({length:40},()=>({x:Math.random()*5000,y:Math.random()*5000,r:1.2+Math.random()*1.8,tw:3+Math.random()*5,op:.6+Math.random()*.4,speed:.4})),
   ];
 
-  /* Nebula clouds */
-  const nebulae=[
+  const nebulae = [
     {x:.25,y:.35,rx:.28,ry:.18,c:[123,47,255],op:.18},
     {x:.72,y:.55,rx:.22,ry:.14,c:[0,212,255],op:.14},
     {x:.5,y:.75,rx:.2,ry:.12,c:[255,59,154],op:.12},
     {x:.1,y:.7,rx:.18,ry:.1,c:[251,191,36],op:.1},
   ];
 
-  /* Planets for intro */
-  const planets=[
-    {dist:130,r:7,spd:.009,ang:.3,clr:'#a78bfa',trail:[]},
-    {dist:210,r:11,spd:.006,ang:1.6,clr:'#00d4ff',trail:[]},
-    {dist:300,r:8,spd:.004,ang:2.9,clr:'#ff3b9a',trail:[]},
-    {dist:400,r:16,spd:.0025,ang:.7,clr:'#fbbf24',trail:[]},
-    {dist:500,r:9,spd:.0015,ang:4.0,clr:'#34d399',trail:[]},
+  const planets = [
+    {offset: 45, r: 7, spd: .009, ang: .3, clr: '#a78bfa', trail: []},
+    {offset: 115, r: 10, spd: .006, ang: 1.6, clr: '#00d4ff', trail: []},
+    {offset: 200, r: 8, spd: .004, ang: 2.9, clr: '#ff3b9a', trail: []},
+    {offset: 295, r: 15, spd: .0025, ang: .7, clr: '#fbbf24', trail: []},
+    {offset: 400, r: 9, spd: .0015, ang: 4.0, clr: '#34d399', trail: []},
   ];
 
-  /* Shooting stars */
-  const shoots=[];
+  const shoots = [];
   function spawnShoot(){
+    if (isIntroDone) return;
     shoots.push({x:Math.random()*W,y:Math.random()*H*.3,vx:-6-Math.random()*10,vy:3+Math.random()*5,life:1,maxLife:40+Math.random()*30,len:60+Math.random()*100});
-    setTimeout(spawnShoot,800+Math.random()*2000);
-  }setTimeout(spawnShoot,400);
+    safeTimeout(spawnShoot, 800 + Math.random() * 2000);
+  }
+  safeTimeout(spawnShoot, 400);
 
-  /* Constellation lines */
-  const constellationStars=Array.from({length:18},()=>({x:Math.random(),y:Math.random()}));
+  const constellationStars = Array.from({length:18},()=>({x:Math.random(),y:Math.random()}));
+  let t2d = 0;
 
-  function draw(){
-    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  function draw2D() {
+    if (isIntroDone) return;
+    ctx2d.fillStyle = '#000';
+    ctx2d.fillRect(0, 0, W, H);
+
+    const spaceFade = Math.max(0, 1 - zoomFactor * 1.2);
 
     /* Nebula clouds */
+    ctx2d.save();
+    ctx2d.globalAlpha = spaceFade;
     nebulae.forEach((n,i)=>{
-      const nx=(n.x+Math.sin(t*.0003+i)*0.04)*W;
-      const ny=(n.y+Math.cos(t*.00025+i)*0.03)*H;
-      const g=ctx.createRadialGradient(nx,ny,0,nx,ny,n.rx*W);
-      g.addColorStop(0,`rgba(${n.c},${n.op+Math.sin(t*.001+i)*.03})`);
+      const nx=(n.x+Math.sin(t2d*.0003+i)*0.04)*W;
+      const ny=(n.y+Math.cos(t2d*.00025+i)*0.03)*H;
+      const g=ctx2d.createRadialGradient(nx,ny,0,nx,ny,n.rx*W);
+      g.addColorStop(0,`rgba(${n.c},${n.op+Math.sin(t2d*.001+i)*.03})`);
       g.addColorStop(.4,`rgba(${n.c},${n.op*.3})`);
       g.addColorStop(1,`rgba(${n.c},0)`);
-      ctx.fillStyle=g;
-      ctx.beginPath();
-      ctx.ellipse(nx,ny,n.rx*W,n.ry*H,Math.sin(t*.0001+i)*.5,0,Math.PI*2);
-      ctx.fill();
+      ctx2d.fillStyle=g;
+      ctx2d.beginPath();
+      ctx2d.ellipse(nx,ny,n.rx*W,n.ry*H,Math.sin(t2d*.0001+i)*.5,0,Math.PI*2);
+      ctx2d.fill();
     });
 
     /* Constellation */
-    ctx.strokeStyle='rgba(0,212,255,.06)';ctx.lineWidth=.7;
+    ctx2d.strokeStyle='rgba(0,212,255,.06)';ctx2d.lineWidth=.7;
     for(let i=0;i<constellationStars.length-1;i++){
       const a=constellationStars[i],b=constellationStars[i+1];
       if(Math.abs(a.x-b.x)+Math.abs(a.y-b.y)<.35){
-        ctx.beginPath();ctx.moveTo(a.x*W,a.y*H);ctx.lineTo(b.x*W,b.y*H);ctx.stroke();
+        ctx2d.beginPath();ctx2d.moveTo(a.x*W,a.y*H);ctx2d.lineTo(b.x*W,b.y*H);ctx2d.stroke();
       }
     }
 
     /* Stars — parallax layers */
     layers.forEach((layer,li)=>{
       layer.forEach(s=>{
-        const sx=(s.x+(t*s.speed*li))%W;
+        const sx=(s.x+(t2d*s.speed*li))%W;
         const sy=s.y%H;
-        const flicker=.7+.3*Math.sin(t*.025*s.tw+s.x);
-        ctx.beginPath();ctx.arc(sx,sy,s.r,0,Math.PI*2);
-        ctx.fillStyle=`rgba(220,235,255,${s.op*flicker})`;ctx.fill();
-        // star glow for bigger ones
+        const flicker=.7+.3*Math.sin(t2d*.025*s.tw+s.x);
+        ctx2d.beginPath();ctx2d.arc(sx,sy,s.r,0,Math.PI*2);
+        ctx2d.fillStyle=`rgba(220,235,255,${s.op*flicker})`;ctx2d.fill();
         if(s.r>1.5){
-          const sg=ctx.createRadialGradient(sx,sy,0,sx,sy,s.r*5);
+          const sg=ctx2d.createRadialGradient(sx,sy,0,sx,sy,s.r*5);
           sg.addColorStop(0,`rgba(220,235,255,${s.op*.3})`);sg.addColorStop(1,'transparent');
-          ctx.beginPath();ctx.arc(sx,sy,s.r*5,0,Math.PI*2);ctx.fillStyle=sg;ctx.fill();
+          ctx2d.beginPath();ctx2d.arc(sx,sy,s.r*5,0,Math.PI*2);ctx2d.fillStyle=sg;ctx2d.fill();
         }
       });
     });
@@ -950,103 +1076,356 @@ document.querySelectorAll('a,button,.sk,.chip,.tl-item,.proj-card').forEach(el=>
       s.x+=s.vx;s.y+=s.vy;s.life--;
       if(s.life<=0)shoots.splice(i,1);
       const prog=s.life/s.maxLife;
-      const g=ctx.createLinearGradient(s.x,s.y,s.x-s.vx*s.len/Math.abs(s.vx),s.y-s.vy*s.len/Math.abs(s.vx));
+      const g=ctx2d.createLinearGradient(s.x,s.y,s.x-s.vx*s.len/Math.abs(s.vx),s.y-s.vy*s.len/Math.abs(s.vx));
       g.addColorStop(0,`rgba(200,230,255,${prog*.9})`);
       g.addColorStop(.3,`rgba(0,212,255,${prog*.4})`);
       g.addColorStop(1,'transparent');
-      ctx.beginPath();ctx.moveTo(s.x,s.y);
-      ctx.lineTo(s.x-s.vx*s.len/8,s.y-s.vy*s.len/8);
-      ctx.strokeStyle=g;ctx.lineWidth=1.5*prog;ctx.stroke();
+      ctx2d.beginPath();ctx2d.moveTo(s.x,s.y);
+      ctx2d.lineTo(s.x-s.vx*s.len/8,s.y-s.vy*s.len/8);
+      ctx2d.strokeStyle=g;ctx2d.lineWidth=1.5*prog;ctx2d.stroke();
     });
 
-    /* Sun */
+    /* Orbit rings + planets (circling gracefully around the large 3D Earth) */
     const cx=W/2,cy=H/2;
-    for(let i=3;i>=0;i--){
-      const sr=ctx.createRadialGradient(cx,cy,0,cx,cy,80-i*15);
-      sr.addColorStop(0,`rgba(255,220,100,${.8-i*.15})`);
-      sr.addColorStop(.5,`rgba(255,120,30,${.4-i*.08})`);
-      sr.addColorStop(1,'transparent');
-      ctx.beginPath();ctx.arc(cx,cy,80-i*15,0,Math.PI*2);ctx.fillStyle=sr;ctx.fill();
-    }
-    // Sun corona rays
-    for(let i=0;i<12;i++){
-      const ang=i/12*Math.PI*2+t*.002;
-      const rl=90+Math.sin(t*.05+i)*20;
-      ctx.beginPath();ctx.moveTo(cx+Math.cos(ang)*40,cy+Math.sin(ang)*40);
-      ctx.lineTo(cx+Math.cos(ang)*rl,cy+Math.sin(ang)*rl);
-      ctx.strokeStyle=`rgba(255,200,50,${.08+Math.sin(t*.03+i)*.04})`;
-      ctx.lineWidth=1.5;ctx.stroke();
-    }
-
-    /* Orbit rings + planets + trails */
-    planets.forEach((p,pi)=>{
+    const baseOrbitRadius = Math.max(220, Math.min(W, H) * 0.34);
+    planets.forEach((p)=>{
       p.ang+=p.spd;
+      p.dist = (baseOrbitRadius + p.offset) * (1 + zoomFactor * 2.8);
       const px=cx+Math.cos(p.ang)*p.dist;
       const py=cy+Math.sin(p.ang)*p.dist;
       p.trail.push({x:px,y:py});if(p.trail.length>40)p.trail.shift();
-      // dashed orbit ring
-      ctx.setLineDash([4,8]);
-      ctx.beginPath();ctx.arc(cx,cy,p.dist,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(255,255,255,0.05)`;ctx.lineWidth=1;ctx.stroke();
-      ctx.setLineDash([]);
-      // trail
+
+      // Dashed orbit ring
+      ctx2d.setLineDash([4,8]);
+      ctx2d.beginPath();ctx2d.arc(cx,cy,p.dist,0,Math.PI*2);
+      ctx2d.strokeStyle=`rgba(255,255,255,${0.05 * (1 - zoomFactor)})`;ctx2d.lineWidth=1;ctx2d.stroke();
+      ctx2d.setLineDash([]);
+
+      // Trail
       p.trail.forEach((pt,ti)=>{
-        const op=ti/p.trail.length*.3;
-        ctx.beginPath();ctx.arc(pt.x,pt.y,p.r*.4,0,Math.PI*2);
-        ctx.fillStyle=p.clr.replace(')',`,${op})`).replace('rgb','rgba');
-        ctx.fill();
+        const op=(ti/p.trail.length*.3) * (1 - zoomFactor);
+        ctx2d.beginPath();ctx2d.arc(pt.x,pt.y,p.r*.4,0,Math.PI*2);
+        ctx2d.fillStyle=p.clr.replace(')',`,${op})`).replace('rgb','rgba');
+        ctx2d.fill();
       });
-      // planet glow
-      const pg=ctx.createRadialGradient(px,py,0,px,py,p.r*4);
-      pg.addColorStop(0,p.clr);pg.addColorStop(.5,p.clr.replace('#','rgba(').replace(/(..)(..)(..)$/,(_,r,g,b)=>`${parseInt(r,16)},${parseInt(g,16)},${parseInt(b,16)},.4)`));
+
+      // Planet glow
+      const pg=ctx2d.createRadialGradient(px,py,0,px,py,p.r*4);
+      pg.addColorStop(0,p.clr);
+      pg.addColorStop(.5,p.clr.replace('#','rgba(').replace(/(..)(..)(..)$/,(_,r,g,b)=>`${parseInt(r,16)},${parseInt(g,16)},${parseInt(b,16)},.4)`));
       pg.addColorStop(1,'transparent');
-      ctx.beginPath();ctx.arc(px,py,p.r*4,0,Math.PI*2);ctx.fillStyle=pg;ctx.fill();
-      // planet body
-      ctx.beginPath();ctx.arc(px,py,p.r,0,Math.PI*2);ctx.fillStyle=p.clr;ctx.fill();
-      // shine
-      const ps=ctx.createRadialGradient(px-p.r*.3,py-p.r*.3,0,px,py,p.r);
+      ctx2d.beginPath();ctx2d.arc(px,py,p.r*4,0,Math.PI*2);ctx2d.fillStyle=pg;ctx2d.fill();
+
+      // Planet body
+      ctx2d.beginPath();ctx2d.arc(px,py,p.r,0,Math.PI*2);ctx2d.fillStyle=p.clr;ctx2d.fill();
+
+      // Shine
+      const ps=ctx2d.createRadialGradient(px-p.r*.3,py-p.r*.3,0,px,py,p.r);
       ps.addColorStop(0,'rgba(255,255,255,.4)');ps.addColorStop(1,'transparent');
-      ctx.beginPath();ctx.arc(px,py,p.r,0,Math.PI*2);ctx.fillStyle=ps;ctx.fill();
+      ctx2d.beginPath();ctx2d.arc(px,py,p.r,0,Math.PI*2);ctx2d.fillStyle=ps;ctx2d.fill();
     });
 
-    t++;requestAnimationFrame(draw);
-  }draw();
-
-  /* Split text into chars */
-  function splitChars(id,text){
-    const el=document.getElementById(id);
-    el.innerHTML=text.split('').map(c=>
-      c===' '?`<span class="char space"> </span>`:`<span class="char">${c}</span>`
-    ).join('');
+    ctx2d.restore();
+    t2d++;
+    animFrame2D = requestAnimationFrame(draw2D);
   }
-  splitChars('line1-chars','Welcome to');
-  splitChars('line2-chars',"Shubham's Portfolio");
+  draw2D();
 
-  /* Animate chars with stagger */
-  let charDelay=600;
-  ['line1-chars','line2-chars'].forEach((id,li)=>{
-    const chars=document.querySelectorAll('#'+id+' .char');
-    chars.forEach((ch,i)=>{
-      setTimeout(()=>ch.classList.add('visible'),charDelay+li*300+i*50);
+  /* ── 3D THREE.JS PHOTOREALISTIC EARTH SCENE (NO ARTIFICIAL BORDER, LARGE SIZE, HIGH RESOLUTION) ── */
+  let renderer = null, scene = null, camera = null;
+  let earthMesh = null, cloudsMesh = null, globeGroup = null;
+  let indiaMarkerGroup = null, markerBeacon = null;
+  let earthMat = null, cloudsMat = null, markerMat = null;
+  let earthGeo = null, cloudsGeo = null, markerGeo = null;
+  let loadedTextures = [];
+
+  function disposeThreeScene() {
+    if (renderer) {
+      renderer.dispose();
+      renderer.forceContextLoss();
+      if (renderer.domElement && renderer.domElement.parentNode) {
+        renderer.domElement.parentNode.removeChild(renderer.domElement);
+      }
+      renderer = null;
+    }
+    loadedTextures.forEach(t => { try { t.dispose(); } catch(e){} });
+    loadedTextures = [];
+    [earthMat, cloudsMat, markerMat].forEach(m => { try { m && m.dispose(); } catch(e){} });
+    [earthGeo, cloudsGeo, markerGeo].forEach(g => { try { g && g.dispose(); } catch(e){} });
+  }
+
+  // Procedural Earth Texture Fallback (immediate, failsafe)
+  function createProceduralEarthTexture() {
+    const cvs = document.createElement('canvas');
+    cvs.width = 1024; cvs.height = 512;
+    const c = cvs.getContext('2d');
+    const grad = c.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, '#0a2342'); grad.addColorStop(0.5, '#05162a'); grad.addColorStop(1, '#0a2342');
+    c.fillStyle = grad; c.fillRect(0, 0, 1024, 512);
+
+    c.fillStyle = '#22553b';
+    c.beginPath(); c.ellipse(540, 260, 55, 75, 0.1, 0, Math.PI*2); c.fill(); // Africa
+    c.beginPath(); c.ellipse(520, 150, 45, 35, -0.2, 0, Math.PI*2); c.fill(); // Europe
+    c.beginPath(); c.ellipse(730, 175, 115, 65, 0, 0, Math.PI*2); c.fill(); // Asia
+    // India subcontinent triangle (lon 79, lat 22)
+    c.fillStyle = '#2d6a4f';
+    c.beginPath(); c.moveTo(700, 175); c.lineTo(765, 175); c.lineTo(736, 230); c.closePath(); c.fill();
+    // Americas
+    c.fillStyle = '#22553b';
+    c.beginPath(); c.ellipse(280, 160, 60, 50, 0.2, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(330, 320, 45, 70, 0.3, 0, Math.PI*2); c.fill();
+    // Australia
+    c.beginPath(); c.ellipse(840, 350, 40, 30, 0, 0, Math.PI*2); c.fill();
+
+    const tex = new THREE.CanvasTexture(cvs);
+    loadedTextures.push(tex);
+    return tex;
+  }
+
+  function createProceduralCloudTexture() {
+    const cvs = document.createElement('canvas');
+    cvs.width = 512; cvs.height = 256;
+    const c = cvs.getContext('2d');
+    c.fillStyle = 'rgba(255,255,255,0)'; c.fillRect(0, 0, 512, 256);
+    c.fillStyle = 'rgba(255,255,255,0.35)';
+    for (let i = 0; i < 45; i++) {
+      c.beginPath();
+      c.arc(Math.random()*512, Math.random()*256, 12+Math.random()*30, 0, Math.PI*2);
+      c.fill();
+    }
+    const tex = new THREE.CanvasTexture(cvs);
+    loadedTextures.push(tex);
+    return tex;
+  }
+
+  // Setup Three.js
+  if (typeof THREE !== 'undefined' && earthCanvas) {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.05, 100);
+
+    renderer = new THREE.WebGLRenderer({
+      canvas: earthCanvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance'
     });
-  });
-})();
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
 
-/* Dismiss intro + wormhole */
-function dismissIntro(){
-  document.getElementById('wormhole').classList.add('active');
-  setTimeout(()=>{
-    document.getElementById('intro').classList.add('out');
-    document.body.style.overflow='auto';
-  },200);
-  setTimeout(()=>{
-    document.getElementById('intro').style.display='none';
-    document.getElementById('wormhole').style.display='none';
-  },1600);
-}
-setTimeout(dismissIntro,5000);
-document.getElementById('skip-btn').addEventListener('click',dismissIntro);
-document.body.style.overflow='hidden';
+    globeGroup = new THREE.Group();
+    scene.add(globeGroup);
+
+    // Initial textures with fallback
+    const fallbackEarthTex = createProceduralEarthTexture();
+    const fallbackCloudTex = createProceduralCloudTexture();
+
+    // 1. Earth Surface Mesh (Photorealistic PBR with Normal Relief & Specular Oceans)
+    earthGeo = new THREE.SphereGeometry(1.0, 64, 64);
+    earthMat = new THREE.MeshStandardMaterial({
+      map: fallbackEarthTex,
+      roughness: 0.72,
+      metalness: 0.08,
+      emissive: new THREE.Color(0xffdf88),
+      emissiveIntensity: 0.6
+    });
+    earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    globeGroup.add(earthMesh);
+
+    // 2. Cloud Layer Mesh (Closer to globe, realistic atmosphere)
+    cloudsGeo = new THREE.SphereGeometry(1.012, 64, 64);
+    cloudsMat = new THREE.MeshStandardMaterial({
+      map: fallbackCloudTex,
+      transparent: true,
+      opacity: 0.42,
+      blending: THREE.AdditiveBlending
+    });
+    cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
+    globeGroup.add(cloudsMesh);
+
+    // 3. India Geographic Target Beacon (Natural soft pinpoint without border rings)
+    const latRad = 22.0 * Math.PI / 180;
+    const lonRad = 79.0 * Math.PI / 180;
+    const indiaVec = new THREE.Vector3(
+      -Math.cos(lonRad + Math.PI) * Math.cos(latRad),
+      Math.sin(latRad),
+      Math.sin(lonRad + Math.PI) * Math.cos(latRad)
+    ).normalize();
+
+    indiaMarkerGroup = new THREE.Group();
+    indiaMarkerGroup.position.copy(indiaVec.clone().multiplyScalar(1.002));
+    indiaMarkerGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), indiaVec);
+
+    // Soft luminous pinpoint (no hard geometric border)
+    markerGeo = new THREE.SphereGeometry(0.012, 16, 16);
+    markerMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0 });
+    markerBeacon = new THREE.Mesh(markerGeo, markerMat);
+    indiaMarkerGroup.add(markerBeacon);
+
+    globeGroup.add(indiaMarkerGroup);
+
+    // 4. Photorealistic Planetary Lighting
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    sunLight.position.set(3.8, 1.8, 2.5);
+    scene.add(sunLight);
+
+    const ambientLight = new THREE.AmbientLight(0x0a1628, 0.42);
+    scene.add(ambientLight);
+
+    const softFillLight = new THREE.DirectionalLight(0x0088cc, 0.35);
+    softFillLight.position.set(-3, -1.5, -2);
+    scene.add(softFillLight);
+
+    // Asynchronously load high-res photorealistic textures
+    const texLoader = new THREE.TextureLoader();
+    const maxAnisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 16);
+
+    texLoader.load('assets/earth/earth_atmos_2048.jpg', (tex) => {
+      tex.anisotropy = maxAnisotropy;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
+      earthMat.map = tex;
+      earthMat.needsUpdate = true;
+      loadedTextures.push(tex);
+    });
+
+    texLoader.load('assets/earth/earth_normal_2048.jpg', (tex) => {
+      tex.anisotropy = maxAnisotropy;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
+      earthMat.normalMap = tex;
+      earthMat.normalScale = new THREE.Vector2(0.85, 0.85);
+      earthMat.needsUpdate = true;
+      loadedTextures.push(tex);
+    });
+
+    texLoader.load('assets/earth/earth_specular_2048.jpg', (tex) => {
+      tex.anisotropy = maxAnisotropy;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
+      earthMat.roughnessMap = tex;
+      earthMat.needsUpdate = true;
+      loadedTextures.push(tex);
+    });
+
+    texLoader.load('assets/earth/earth_clouds_1024.png', (tex) => {
+      tex.anisotropy = maxAnisotropy;
+      cloudsMat.map = tex;
+      cloudsMat.needsUpdate = true;
+      loadedTextures.push(tex);
+    });
+
+    texLoader.load('assets/earth/earth_lights_2048.png', (tex) => {
+      tex.anisotropy = maxAnisotropy;
+      earthMat.emissiveMap = tex;
+      earthMat.needsUpdate = true;
+      loadedTextures.push(tex);
+    });
+
+    // Resize handler
+    const onResize3D = () => {
+      if (!renderer || !camera) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      resize2D();
+    };
+    window.addEventListener('resize', onResize3D);
+
+    /* ── CINEMATIC TIMELINE (LARGE EARTH & HIGH-FIDELITY ZOOM) ── */
+    const startTime = performance.now();
+    // Larger Earth size: initial distance 3.6 makes Earth occupy a grand, prominent presence
+    const initialZ = 3.6;
+    // Zoom distance: 1.34 keeps continents razor-sharp with no texture pixelation
+    const targetZ = 1.34;
+
+    // Target orientation: India faces camera at (0, 0, 1) with North pointing up
+    const targetRotY = (270 - 79) * Math.PI / 180; // 191° (3.3335 rad)
+    const targetRotX = latRad;                     // +22° (0.384 rad)
+    const startRotY = targetRotY - 1.8;           // Initial angle (~88°)
+    const startRotX = 0.15;
+
+    function easeInOutCubic(x) {
+      return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    }
+    function easeInCubic(x) {
+      return x * x * x;
+    }
+
+    function render3D() {
+      if (isIntroDone) return;
+      const elapsed = (performance.now() - startTime) / 1000;
+
+      // Stage 1 & 2: 0.0s - 2.0s Earth Reveal & Smooth Rotation toward India
+      const rotProgress = easeInOutCubic(Math.min(1, elapsed / 2.0));
+      earthMesh.rotation.y = startRotY + (targetRotY - startRotY) * rotProgress;
+      earthMesh.rotation.x = startRotX + (targetRotX - startRotX) * rotProgress;
+      cloudsMesh.rotation.y = earthMesh.rotation.y * 1.012 + elapsed * 0.012;
+      cloudsMesh.rotation.x = earthMesh.rotation.x;
+
+      // India soft beacon activation (1.5s - 3.3s) - no border rings
+      if (elapsed >= 1.5) {
+        const pulse = Math.sin((elapsed - 1.5) * 10) * 0.4 + 0.6;
+        const fade = Math.min(1, (elapsed - 1.5) / 0.5);
+        markerMat.opacity = pulse * 0.95 * fade;
+        const beaconScale = 1.0 + (pulse - 0.6) * 0.8;
+        markerBeacon.scale.set(beaconScale, beaconScale, beaconScale);
+      }
+
+      // Title & subtitle fade out as zoom approaches (1.8s - 2.2s)
+      if (elapsed >= 1.8 && introWrap) {
+        const textFade = Math.max(0, 1 - (elapsed - 1.8) / 0.35);
+        introWrap.style.opacity = textFade;
+        introWrap.style.transform = 'scale(' + (1 + (elapsed - 1.8) * 0.1) + ')';
+      }
+
+      // Stage 3: 2.0s - 3.3s Camera Zoom Toward India
+      if (elapsed < 2.0) {
+        camera.position.set(0, 0, initialZ);
+        zoomFactor = 0;
+      } else if (elapsed <= 3.3) {
+        const zoomP = (elapsed - 2.0) / 1.3;
+        const easeP = easeInCubic(Math.min(1, zoomP));
+        zoomFactor = easeP;
+        camera.position.z = initialZ - (initialZ - targetZ) * easeP;
+        // As we enter the upper atmosphere, clouds soften naturally
+        cloudsMat.opacity = 0.42 + easeP * 0.25;
+      } else {
+        camera.position.z = targetZ;
+        zoomFactor = 1;
+      }
+      camera.lookAt(0, 0, 0);
+
+      // Stage 4: 3.3s - 4.3s Dashboard Reveal & Atmospheric Dissolve
+      if (elapsed >= 3.3 && !window._wormholeTriggered) {
+        window._wormholeTriggered = true;
+        if (wormholeEl) wormholeEl.classList.add('active');
+      }
+      if (elapsed >= 3.6 && !window._introOutTriggered) {
+        window._introOutTriggered = true;
+        if (introEl) introEl.classList.add('out');
+        document.body.style.overflow = 'auto';
+      }
+      if (elapsed >= 4.3) {
+        dismissIntro(false);
+        return;
+      }
+
+      renderer.render(scene, camera);
+      animFrame3D = requestAnimationFrame(render3D);
+    }
+    render3D();
+  }
+
+  // Safety fallback: guarantee intro dismiss within 4.8 seconds maximum
+  safeTimeout(() => {
+    if (!isIntroDone) dismissIntro(false);
+  }, 4800);
+})();
 
 /* ─── MAIN BG CANVAS ─────────────────────── */
 (function(){
@@ -1170,7 +1549,12 @@ function type(){
   else{tEl.textContent=cur.slice(0,--ci);if(ci===0){del=false;ri=(ri+1)%roles.length;}}
   setTimeout(type,del?38:78);
 }
-setTimeout(type,5500);
+window.startHeroTypewriter = function() {
+  if (window._heroTypewriterStarted) return;
+  window._heroTypewriterStarted = true;
+  type();
+};
+setTimeout(window.startHeroTypewriter, 4500);
 
 /* ─── ACTIVE NAV LINK ────────────────────── */
 const sections=document.querySelectorAll('section[id]');
