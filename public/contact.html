@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Shubham</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="c-dot"></div>
+<div id="c-ring"></div>
+
+<!-- Scroll progress -->
+<div id="prog"></div>
+
+<!-- Fixed BG canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- ════════════════════════════
+     NAV
+════════════════════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Shubham</a>
+    <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="experience.html">Experience</a></li>
+      <li><a href="education.html">Education</a></li>
+      <li><a href="contact.html" class="nav-cta">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="section" id="contact">
+  <div class="container">
+    <div class="rv" style="text-align:center;max-width:560px;margin:0 auto;">
+      <div class="sec-label" style="justify-content:center">Get In Touch</div>
+      <h2 class="sec-title">Let's <span class="grad">Connect</span></h2>
+      <p class="sec-desc" style="margin:0 auto">Open to collaborations, internships, and conversations about tech and innovation.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="rl">
+        <div class="ct-title">Say Hello 👋</div>
+        <p class="ct-desc">Whether it's a project idea, internship opportunity, or just a friendly conversation about AI and data — my inbox is always open.</p>
+        <div class="ct-links">
+          <a href="mailto:shubhamaher349@gmail.com" class="ct-link">
+            <div class="ct-icon"><i class="fas fa-envelope"></i></div>shubhamaher349@gmail.com
+          </a>
+          <a href="https://www.linkedin.com/in/shubham-aher-9b1a2a270/" target="_blank" class="ct-link">
+            <div class="ct-icon"><i class="fab fa-linkedin-in"></i></div>linkedin.com/in/shubham-dev
+          </a>
+          <a href="https://github.com/shubhamaher-tech" target="_blank" class="ct-link">
+            <div class="ct-icon"><i class="fab fa-github"></i></div>github.com/shubham-dev
+          </a>
+        </div>
+        <a href="https://personalweb-unk3.onrender.com/resume.pdf" class="btn btn-p" target="_blank">
+          <i class="fas fa-download"></i> Download Resume <span class="rw"></span>
+        </a>
+      </div>
+      <div class="rr">
+        <div class="cf glass">
+          <form id="contactForm">
+            <div class="fr">
+              <div class="fg"><label class="fl">Your Name</label><input type="text" class="fi" placeholder="John Doe" required></div>
+              <div class="fg"><label class="fl">Email</label><input type="email" class="fi" placeholder="john@email.com" required></div>
+            </div>
+            <div class="fg"><label class="fl">Subject</label><input type="text" class="fi" placeholder="Project collaboration…" required></div>
+            <div class="fg"><label class="fl">Message</label><textarea class="ft" placeholder="Hi Shubham, I'd like to…" required></textarea></div>
+            <button type="submit" class="btn btn-p" style="width:100%;justify-content:center">
+              <i class="fas fa-paper-plane"></i> Send Message <span class="rw"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     FOOTER
+════════════════════════════ -->
+<footer>
+  <div class="foot-inner">
+    <a href="index.html" class="logo">Shubham</a>
+    <p class="foot-text">© 2025 Shubham &nbsp;·&nbsp; Crafted with ❤️ &amp; ☕</p>
+    <div class="socials">
+      <a href="https://github.com/shubhamaher-tech" target="_blank" class="soc"><i class="fab fa-github"></i></a>
+      <a href="https://linkedin.com/in/shubham-aher-9b1a2a270/" target="_blank" class="soc"><i class="fab fa-linkedin-in"></i></a>
+      <a href="mailto:shubhamaher349@gmail.com" class="soc"><i class="fas fa-envelope"></i></a>
+      <a href="https://twitter.com" target="_blank" class="soc"><i class="fab fa-twitter"></i></a>
+    </div>
+  </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+/* Active nav highlight for this page */
+(function(){
+  const a = document.querySelector('.nav-links a[href="contact.html"]');
+  if(a) a.style.color = 'var(--cyan)';
+})();
+
+/* ─── FORM SUBMIT ────────────────────────── */
+const _cf = document.getElementById('contactForm');
+if (_cf) {
+  _cf.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('button[type="submit"]');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
+    btn.style.background = 'linear-gradient(135deg,#10b981,#34d399)';
+    btn.style.boxShadow = '0 4px 24px rgba(16,185,129,.4)';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.boxShadow = ''; this.reset(); }, 3500);
+  });
+}
+</script>
+</body>
+</html>
